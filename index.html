@@ -1,0 +1,476 @@
+```html
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Text Case Converter — Boltu</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  :root {
+    --primary: #06b6d4;
+    --primary-dark: #0891b2;
+    --secondary: #8b5cf6;
+    --dark-bg: #071827;
+    --darker-bg: #05121d;
+    --card-bg: rgba(255, 255, 255, 0.02);
+    --text-primary: #e6eef3;
+    --text-secondary: #9aa6b2;
+    --border: rgba(255, 255, 255, 0.08);
+    --success: #10b981;
+  }
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(135deg, var(--dark-bg) 0%, var(--darker-bg) 100%);
+    color: var(--text-primary);
+    min-height: 100vh;
+    padding: 24px;
+    line-height: 1.6;
+  }
+  
+  .wrap {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  header {
+    text-align: center;
+    margin-bottom: 32px;
+    padding: 20px;
+    background: var(--card-bg);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  }
+  
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 8px;
+  }
+  
+  .subtitle {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .input-section, .output-section {
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+    border: 1px solid var(--border);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+  
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+  
+  .section-title i {
+    color: var(--primary);
+  }
+  
+  textarea, input, select {
+    width: 100%;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: rgba(0, 0, 0, 0.2);
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    resize: vertical;
+    min-height: 120px;
+  }
+  
+  textarea:focus, input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2);
+  }
+  
+  .button-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin: 20px 0;
+  }
+  
+  button {
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: none;
+    color: #012;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  button:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transform: translateX(-100%);
+  }
+  
+  button:hover:before {
+    transform: translateX(100%);
+    transition: transform 0.6s ease;
+  }
+  
+  button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+  
+  button:active {
+    transform: translateY(0);
+  }
+  
+  .btn-upper { background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%); }
+  .btn-lower { background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%); }
+  .btn-title { background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); }
+  .btn-camel { background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); }
+  .btn-pascal { background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%); }
+  .btn-snake { background: linear-gradient(135deg, #a6c0fe 0%, #f68084 100%); }
+  .btn-kebab { background: linear-gradient(135deg, #fccb90 0%, #d57eeb 100%); }
+  .btn-constant { background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); }
+  
+  #copy {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+  }
+  
+  #copy:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+  }
+  
+  .result {
+    margin-top: 20px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    white-space: pre-wrap;
+    min-height: 120px;
+    border: 1px solid var(--border);
+    font-family: monospace;
+    font-size: 1.1rem;
+    position: relative;
+  }
+  
+  .stats {
+    display: flex;
+    gap: 24px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .stat-card {
+    flex: 1;
+    min-width: 120px;
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+  
+  .stat-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  
+  .stat-label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+  }
+  
+  .action-bar {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .action-btn {
+    flex: 1;
+    min-width: 120px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  
+  .action-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+  }
+  
+  .notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 16px 24px;
+    background: var(--success);
+    color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transform: translateX(200%);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+  }
+  
+  .notification.show {
+    transform: translateX(0);
+  }
+  
+  footer {
+    text-align: center;
+    margin-top: 40px;
+    padding: 20px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+  }
+  
+  @media (max-width: 768px) {
+    .button-group {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .stats {
+      gap: 12px;
+    }
+    
+    h1 {
+      font-size: 2rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .button-group {
+      grid-template-columns: 1fr;
+    }
+    
+    .action-bar {
+      flex-direction: column;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1><i class="fas fa-text-height"></i> Text Case Converter</h1>
+      <p class="subtitle">Transform your text into any case format with a single click. Perfect for developers, writers, and content creators.</p>
+    </header>
+    
+    <section class="input-section">
+      <div class="section-title">
+        <i class="fas fa-keyboard"></i>
+        <h2>Input Text</h2>
+      </div>
+      <textarea id="txt" rows="6" placeholder="Paste or type your text here...">Hello from Boltu! This is a sample text to demonstrate the converter.</textarea>
+      
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-value" id="char-count">0</div>
+          <div class="stat-label">Characters</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="word-count">0</div>
+          <div class="stat-label">Words</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="line-count">0</div>
+          <div class="stat-label">Lines</div>
+        </div>
+      </div>
+    </section>
+    
+    <div class="button-group">
+      <button data-f="upper" class="btn-upper"><i class="fas fa-text-height"></i> UPPERCASE</button>
+      <button data-f="lower" class="btn-lower"><i class="fas fa-text-height"></i> lowercase</button>
+      <button data-f="title" class="btn-title"><i class="fas fa-heading"></i> Title Case</button>
+      <button data-f="camel" class="btn-camel"><i class="fas fa-camel"></i> camelCase</button>
+      <button data-f="pascal" class="btn-pascal"><i class="fas fa-font"></i> PascalCase</button>
+      <button data-f="snake" class="btn-snake"><i class="fas fa-underline"></i> snake_case</button>
+      <button data-f="kebab" class="btn-kebab"><i class="fas fa-minus"></i> kebab-case</button>
+      <button data-f="constant" class="btn-constant"><i class="fas fa-equals"></i> CONSTANT_CASE</button>
+    </div>
+    
+    <section class="output-section">
+      <div class="section-title">
+        <i class="fas fa-file-export"></i>
+        <h2>Converted Text</h2>
+      </div>
+      <div id="out" class="result">Your converted text will appear here...</div>
+      
+      <div class="action-bar">
+        <button id="copy" class="action-btn"><i class="fas fa-copy"></i> Copy to Clipboard</button>
+        <button id="clear" class="action-btn"><i class="fas fa-eraser"></i> Clear All</button>
+        <button id="swap" class="action-btn"><i class="fas fa-exchange-alt"></i> Swap Text</button>
+      </div>
+    </section>
+    
+    <footer>
+      <p>Made with ❤️ by Boltu | Text Case Converter Tool</p>
+    </footer>
+  </div>
+  
+  <div class="notification" id="notification">
+    <i class="fas fa-check-circle"></i> Text copied to clipboard!
+  </div>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const notification = $('notification');
+  
+  // Text transformation functions
+  function toTitle(s) { 
+    return s.toLowerCase().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '); 
+  }
+  
+  function toCamel(s) {
+    const words = s.replace(/[^A-Za-z0-9 ]+/g, ' ').trim().split(/\s+/);
+    if(!words.length) return '';
+    return words[0].toLowerCase() + words.slice(1).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join('');
+  }
+  
+  function toPascal(s) {
+    const words = s.replace(/[^A-Za-z0-9 ]+/g, ' ').trim().split(/\s+/);
+    if(!words.length) return '';
+    return words.map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join('');
+  }
+  
+  function toSnake(s) {
+    return s.replace(/[^A-Za-z0-9 ]+/g, ' ').trim().toLowerCase().replace(/\s+/g, '_');
+  }
+  
+  function toKebab(s) {
+    return s.replace(/[^A-Za-z0-9 ]+/g, ' ').trim().toLowerCase().replace(/\s+/g, '-');
+  }
+  
+  function toConstant(s) {
+    return s.replace(/[^A-Za-z0-9 ]+/g, ' ').trim().toUpperCase().replace(/\s+/g, '_');
+  }
+  
+  // Update statistics
+  function updateStats() {
+    const text = $('txt').value || '';
+    $('char-count').textContent = text.length;
+    $('word-count').textContent = text.trim() ? text.trim().split(/\s+/).length : 0;
+    $('line-count').textContent = text.split('\n').length;
+  }
+  
+  // Show notification
+  function showNotification(message) {
+    notification.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+    notification.classList.add('show');
+    setTimeout(() => {
+      notification.classList.remove('show');
+    }, 2000);
+  }
+  
+  // Event listeners for conversion buttons
+  document.querySelectorAll('button[data-f]').forEach(b => {
+    b.addEventListener('click', () => {
+      const f = b.getAttribute('data-f');
+      const val = $('txt').value || '';
+      let out = '';
+      
+      switch(f) {
+        case 'upper': out = val.toUpperCase(); break;
+        case 'lower': out = val.toLowerCase(); break;
+        case 'title': out = toTitle(val); break;
+        case 'camel': out = toCamel(val); break;
+        case 'pascal': out = toPascal(val); break;
+        case 'snake': out = toSnake(val); break;
+        case 'kebab': out = toKebab(val); break;
+        case 'constant': out = toConstant(val); break;
+      }
+      
+      $('out').textContent = out;
+    });
+  });
+  
+  // Copy to clipboard
+  $('copy').addEventListener('click', () => { 
+    const t = $('out').textContent; 
+    if(!t || t === 'Your converted text will appear here...') return; 
+    navigator.clipboard?.writeText(t); 
+    showNotification('Text copied to clipboard!');
+  });
+  
+  // Clear all text
+  $('clear').addEventListener('click', () => {
+    $('txt').value = '';
+    $('out').textContent = 'Your converted text will appear here...';
+    updateStats();
+  });
+  
+  // Swap text
+  $('swap').addEventListener('click', () => {
+    const input = $('txt').value;
+    const output = $('out').textContent;
+    
+    if(output && output !== 'Your converted text will appear here...') {
+      $('txt').value = output;
+      $('out').textContent = input;
+      updateStats();
+      showNotification('Text swapped!');
+    }
+  });
+  
+  // Update stats on input
+  $('txt').addEventListener('input', updateStats);
+  
+  // Initialize stats
+  updateStats();
+</script>
+</body>
+</html>
+```
